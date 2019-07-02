@@ -11,23 +11,33 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include "libft/libft.h"
 
-int get_next_line(int const fd, char **line)
+int	get_next_line(const int fd, char **line)
 {
-    char buffer[2] = "";
+	static char	*c[2147483647];
+	char		buffer[BUFF_SIZE + 1];
+	char		*tmp;
+	ssize_t		b;
+	int			endl;
 
-    /* Allocate line memory if needed */
-    if( !*line )
-        *line = malloc(100 * sizeof(char));
-
-    /* Blank out the line */
-    *line[0] = '\0';
-
-    while( read(fd, buffer, 1) > 0 ) {
-        strncat(*line, buffer, 1);
-        if( buffer[0] == '\n' )
-            break;
-    }
-
-    return 0;
+	if (fd < 0 || (!c[fd] && !(c[fd] = ft_strnew(1))) || !line)
+		return (-1);
+	while (!ft_strchr(c[fd], '\n') && (b = read(fd, buffer, BUFF_SIZE)) > 0)
+	{
+		buffer[b] = '\0';
+		tmp = c[fd];
+		c[fd] = ft_strjoin(c[fd], buffer);
+		ft_strdel(&tmp);
+	}
+	if (b == -1 || !*(tmp = c[fd]))
+		return (b == -1 ? -1 : 0);
+	if ((endl = (ft_strchr(c[fd], '\n') > 0)))
+		*line = ft_strsub(c[fd], 0, ft_strchr(c[fd], '\n') - c[fd]);
+	else
+		*line = ft_strdup(c[fd]);
+	c[fd] = ft_strsub(c[fd], (unsigned int)(ft_strlen(*line) + endl),
+			(size_t)(ft_strlen(c[fd]) - (ft_strlen(*line) + endl)));
+	ft_strdel(&tmp);
+	return (!(!c[fd] && !ft_strlen(*line)));
 }
