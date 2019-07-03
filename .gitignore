@@ -1,4 +1,4 @@
 .DS_Store
 *.swp
 *.tmp
-.a.out
+a.out
